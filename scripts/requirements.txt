@@ -1,0 +1,6 @@
+flair==0.6.1.post1
+matplotlib==3.3.4
+pandas==1.1.5
+scikit-learn==0.24.2
+torch==1.9.0
+transformers==4.9.2
