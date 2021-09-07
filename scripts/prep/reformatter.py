@@ -560,10 +560,14 @@ class Reformat2012(Reformat):
         # save pol table
         print('Extract POLARITY table')
         problem_table_pol = problem_table[["event", "doc_id", "sent_ind", "start", "end", "polarity", "left", "right"]]
+        problem_table_pol['label'] = 0
+        problem_table_pol.loc[(problem_table_pol.polarity == 'POS'), 'label'] = 1
         
         # save mod table
         print('Extract MODALITY table')
         problem_table_mod = problem_table[["event", "doc_id", "sent_ind", "start", "end", "modality", "left", "right"]]
+        problem_table_mod['label'] = 0
+        problem_table_mod.loc[(problem_table_mod.modality == 'FACTUAL'), 'label'] = 1
 
         return problem_table_pol, problem_table_mod
 
@@ -747,7 +751,12 @@ class Reformat2012(Reformat):
 
         # final table
         temprel_table = table.drop(columns=['left', 'right'])
-        
+
+        # assign label
+        temprel_table['label'] = 0
+        temprel_table.loc[(temprel_table.reltype == 'BEFORE'), 'label'] = 1
+        temprel_table.loc[(temprel_table.reltype == 'AFTER'), 'label'] = 2
+
         return temprel_table
 
     def extract_temprel_universal(self, temprel_df, problem_df, tags):
@@ -779,6 +788,11 @@ class Reformat2012(Reformat):
         # final table
         temprel_table = table.drop(columns=['left_cross', 'right_cross'])
         
+        # assign label
+        temprel_table['label'] = 0
+        temprel_table.loc[(temprel_table.reltype == 'BEFORE'), 'label'] = 1
+        temprel_table.loc[(temprel_table.reltype == 'AFTER'), 'label'] = 2
+
         return temprel_table
 
     def load(self):
