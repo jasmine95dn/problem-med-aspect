@@ -6,12 +6,29 @@ import torch.nn as nn
 import torch
 from transformers import BertModel
 
+class Net(nn.Module):
+    def __init__(self, input_size=1024, hidden_size=512, num_labels=2, num_layers=2):
+        super(Net, self).__init__()
+
+        self.mode = 'None'
+        self.model = None
+        self.classifier = None
+
+    def forward(self):
+        pass
+
+    def __repr__(self):
+        return f'Model {self.mode}'
+
 
 # Create GRUNet
-class GRUNet(nn.Module):
-    def __init__(self, input_size, hidden_size=512, num_labels=2, num_layers=2, dropout=0.2):
+class GRUNet(Net):
+    def __init__(self, input_size:int=1024, hidden_size:int=512, 
+                num_labels:int=2, num_layers:int=2, dropout:float=0.2):
 
         super(GRUNet, self).__init__()
+
+        self.mode = 'GRU'
 
         # InstantiateGRU Net
         self.model = nn.GRU(input_size, hidden_size, num_layers=num_layers,
@@ -26,16 +43,19 @@ class GRUNet(nn.Module):
 
         output, _ = self.model(x)
 
+        logits = self.classifier(output[:, -1])
 
-        return self.classifier(output[:, -1]) #self.act(self.fc(output[:,-1]))
+        return logits
 
 
 # Create LSTMNet
-class BiLSTMNet(nn.Module):
-    def __init__(self, input_size, hidden_size=512,
-                    num_labels=3, num_layers=2, dropout=0.2):
+class BiLSTMNet(Net):
+    def __init__(self, input_size:int=1024, hidden_size:int=512, 
+                    num_labels:int=3, num_layers:int=2, dropout:float=0.2):
 
         super(BiLSTMNet, self).__init__()
+
+        self.mode = 'BiLSTM'
 
         # Instantiate a BiLSTM Net
         self.model = nn.LSTM(input_size, hidden_size, num_layers=num_layers,
@@ -53,20 +73,26 @@ class BiLSTMNet(nn.Module):
 
         ht = torch.cat((hidden[-2,:,:], hidden[-1,:,:]), dim = 1)
 
-        return self.classifier(ht) #self.act(self.fc(ht))
+        logits = self.classifier(ht)
+
+        return logits
 
 
-class BertNet(nn.Module):
-    def __init__(self, model='bert-base-uncased', bert_hidden_size:int=768, hidden_size:int=50, num_labels=3,
+class BertNet(Net):
+    def __init__(self, model:str='bert-base-uncased', 
+                    input_size:int=768, hidden_size:int=50, num_labels:int=3,
                      freeze_bert=False):
 
         super(BertNet, self).__init__()
+
+        self.mode = 'finetuned'
+
         # Instantiate BERT model
         self.model = BertModel.from_pretrained(model)
 
         # classifier
         self.classifier = nn.Sequential(
-            nn.Linear(bert_hidden_size, hidden_size),
+            nn.Linear(input_size, hidden_size),
             nn.Softmax(),
             nn.Linear(hidden_size, num_labels))
 
