@@ -160,7 +160,7 @@ class Reformat:
                 
         return split_list
 
-    def load(self):
+    def __call__(self):
         raise NotImplementedError
 
 
@@ -203,7 +203,7 @@ class Reformat2010(Reformat):
         
         return problems
 
-    def extract_table(path_to_concepts, path_to_ast, doc_id):
+    def extract_table(self, path_to_concepts, path_to_ast, doc_id):
         print(f'extract document {doc_id}')
         
         # 1. PROBLEM tag
@@ -269,7 +269,7 @@ class Reformat2010(Reformat):
         problems = df.copy(deep=True)
 
         problems[['left', 'right']] = problems.apply(
-            lambda row: find_context(row['sent_ind'], row['start'], row['end'], row['doc_id'], full=full), axis=1,
+            lambda row: self.find_context(row['sent_ind'], row['start'], row['end'], row['doc_id'], full=full), axis=1,
             result_type='expand')
         return problems        
 
@@ -288,21 +288,23 @@ class Reformat2010(Reformat):
 
         return problem_table
 
-    def load(self):
+    def __call__(self):
+        """
+
+        :return:
+        """
         # GET TABLE problem
         probs = self.get_table(self.docs, self.srcfolder)
 
-
         # ASSIGN CONTEXT TO PROBLEMS (within and cross)
-
         problems = self.assign_context(probs, full=False)
 
         # GET AND SAVE PROBLEMS TABLES WITH CONTEXTS mod and pol
         mod_table = self.extract_mod(problems)
-        # mod_table.to_json(os.path.join(path, f'problems_{dataset_type}_data_2012_mod.json'), orient='records')
 
         print('Save MODALITY table')
-        self.saver.save_frame(mod_table, f'problems_{self.data_type}_data_2010_mod')
+        self.saver.save_input_frame(mod_table, f'problems_{self.data_type}_data_2010_mod')
+
 
 class Reformat2012(Reformat):
 
@@ -795,7 +797,7 @@ class Reformat2012(Reformat):
 
         return temprel_table
 
-    def load(self):
+    def __call__(self):
         """
 
         :return:
@@ -814,18 +816,18 @@ class Reformat2012(Reformat):
         pol_table, mod_table = self.extract_mod_pol(problems)
     
         print('Save POLARITY table')
-        self.saver.save_frame(pol_table, f'problems_{self.data_type}_data_2012_pol')
+        self.saver.save_input_frame(pol_table, f'problems_{self.data_type}_data_2012_pol')
 
         print('Save MODALITY table')
-        self.saver.save_frame(mod_table, f'problems_{self.data_type}_data_2012_mod')
+        self.saver.save_input_frame(mod_table, f'problems_{self.data_type}_data_2012_mod')
 
         # GET AND SAVE TEMPREL TABLE WITHIN SENTENCE
         temprel_within_table = self.extract_temprel_within(temprel, problems,
                                                     tags=self.tags.get('xml', [('<e2>', '</e2>'), ('<e1>', '</e2>')]))
-        self.saver.save_frame(temprel_within_table, f'temprel_within_{self.data_type}_2012')
+        self.saver.save_input_frame(temprel_within_table, f'temprel_within_{self.data_type}_2012')
 
         # GET AND SAVE TEMPREL TABLE CROSS SENTENCE
         temprel_universal_table = self.extract_temprel_universal(temprel, problems,
                                                         tags=self.tags.get('nonxml', [('ebs', 'ebe'), ('eas', 'eae')]))
-        self.saver.save_frame(temprel_universal_table, f'temprel_universal_{self.data_type}_2012')
+        self.saver.save_input_frame(temprel_universal_table, f'temprel_universal_{self.data_type}_2012')
 
