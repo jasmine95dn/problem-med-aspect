@@ -93,7 +93,7 @@ class EntityEmbeddingProcessor:
             # 4. extract the embeddings only
             flair = torch.stack([torch.stack([tok.embedding for tok in sent]) for sent in tok_sents])
 
-            #### stacking clinicalbert and flair
+            ## stacking clinicalbert and flair
             inputs = torch.cat([clinicalbert, flair], dim=-1)
 
         return inputs
@@ -133,6 +133,9 @@ class ModelProcessor:
             else model(model_config.model_path, model_config.input_size, model_config.hidden_size,
                          model_config.num_classes, model_config.freeze_bert)
         self.finetune = model_config.finetune
+
+        # model path to continue training
+        self.train_model_path = model_config.train_model_path
 
         # Total number of training steps is [number of batches] x [number of epochs].
         # (Note that this is not the same as the number of training samples).
@@ -243,7 +246,7 @@ class ModelProcessor:
         total_train_f1 = 0
 
 
-       # model in train mode
+        # model in train mode
         self.model.train()
 
         # For each batch of training data...
@@ -418,12 +421,11 @@ class ModelProcessor:
 
         return predictions, true_labels
 
-    def __call__(self, mode='train', info='start', train_model_path=None):
+    def __call__(self, mode='train', info='start'):
         """
 
         :param mode:
         :param info:
-        :param train_model_path:
         :return:
         """
 
@@ -446,8 +448,8 @@ class ModelProcessor:
 
             # if continue the training and not from the start
             if info == 'cond':
-                state_dict = ModelLoader.load_model(train_model_path, self.device)
-                epoch_start = int(train_model_path[-4])
+                state_dict = ModelLoader.load_model(self.train_model_path, self.device)
+                epoch_start = int(self.train_model_path[-4])
                 self.model.load_state_dict(state_dict['model_state_dict'])
                 self.optimizer.load_state_dict(state_dict['optimizer_state_dict'])
 
@@ -471,8 +473,8 @@ class ModelProcessor:
                 t0 = time.time()
 
                 # train the model
-                avg_train_loss, avg_train_prec, avg_train_rec, avg_train_f1 = self.train(self.train_loader,
-                                                        self.optimizer, self.criterion, self.scheduler, t0)
+                avg_train_loss, avg_train_prec, avg_train_rec, avg_train_f1 = self.train(
+                                                self.train_loader, self.optimizer, self.criterion, self.scheduler, t0)
 
                 # Measure how long this epoch took.
                 training_time = self.format_time(time.time() - t0)
@@ -532,9 +534,9 @@ class ModelProcessor:
             ModelSaver.save_checkpoint(self.model, self.optimizer, last_val_loss,
                                        path=f'{self.model_save_path}/{self.emb_type}_model.pt')
 
-        elif mode == 'test': # model loader before call
+        elif mode == 'test':
             # load model to test
-            state_dict = ModelLoader.load_model(train_model_path, self.device)
+            state_dict = ModelLoader.load_model(self.train_model_path, self.device)
             self.model.load_state_dict(state_dict['model_state_dict'])
             self.optimizer.load_state_dict(state_dict['optimizer_state_dict'])
 
