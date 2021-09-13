@@ -7,6 +7,7 @@ from scripts.utils.savers import FrameSaver
 from scripts.nn.config import PrepConfig
 warnings.filterwarnings("ignore")
 
+
 class Reformat:
     def __init__(self, prep_config: PrepConfig):
         """
