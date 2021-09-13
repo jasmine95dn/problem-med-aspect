@@ -1,28 +1,23 @@
 # --*-- coding: utf-8 --*--
-import os
-import re
+import os, re
 from itertools import chain
-
-import numpy as np
 import pandas as pd
 import warnings
-
 from scripts.utils.savers import FrameSaver
+from scripts.nn.config import PrepConfig
 warnings.filterwarnings("ignore")
 
-
 class Reformat:
+    def __init__(self, prep_config: PrepConfig):
+        """
 
-    def __init__(self, text_src: str, srcfolder: str, outfolder: str,
-                    dataset_type: str = 'train',  to_compress: bool = False, raw_pref: str = '.xml'):
-        assert isinstance(text_src, str)
-        assert isinstance(srcfolder, str)
-
-        self.srcfolder = srcfolder
-        self.docs = self.doc_list(srcfolder)
-        self.data_type = dataset_type
-        self.rawtext = self.extract_rawtext(self.docs, srcfolder, raw_pref)
-        self.saver = FrameSaver(outfolder, to_compress = to_compress)
+        :param prep_config:
+        """
+        self.srcfolder = prep_config.srcfolder
+        self.docs = self.doc_list(prep_config.srcfolder)
+        self.data_type = prep_config.dataset_type
+        self.rawtext = self.extract_rawtext(self.docs, prep_config.srcfolder, prep_config.raw_pref)
+        self.saver = FrameSaver(prep_config.outfolder, to_compress=prep_config.to_compress)
 
     @staticmethod
     def doc_list(srcfolder, name=r'\d+'):
@@ -54,6 +49,7 @@ class Reformat:
 
         :param docs:
         :param folder:
+        :param pref:
         :return:
         """
         rawtexts = {doc_id: self.load_raw_text(os.path.join(folder, f'{doc_id}{pref}.txt'))
@@ -166,8 +162,8 @@ class Reformat:
 
 class Reformat2010(Reformat):
 
-    def __init__(self, text_src, srcfolder: str, dataset_type: str = 'train', to_compress: bool = False, raw_pref: str = ''):
-        super(Reformat2010, self).__init__(text_src, srcfolder, dataset_type)
+    def __init__(self, prep_config: PrepConfig):
+        super(Reformat2010, self).__init__(prep_config)
 
     def extract_concept(self, path_to_concepts):
         
@@ -196,7 +192,7 @@ class Reformat2010(Reformat):
         
         # convert and merge ast -> modality
         # convert 'present' + 'absent' -> FACTUAL
-        problems['modality'] = problems.modality.replace(['present', 'absent'],'FACTUAL')
+        problems['modality'] = problems.modality.replace(['present', 'absent'], 'FACTUAL')
         
         # convert the rest -> NONFACTUAL
         problems['modality'] = problems.modality.replace(r'^(?!.*FACTUAL).*$', 'NONFACTUAL', regex=True)
@@ -254,8 +250,7 @@ class Reformat2010(Reformat):
         # convert numeric values
         print("convert numeric values in columns")
         full_table[["sent_ind", "start", "end"]] = full_table[["sent_ind", "start", "end"]].apply(pd.to_numeric)
-        
-        
+
         return full_table
 
     def assign_context(self, df, full=False):
@@ -285,6 +280,8 @@ class Reformat2010(Reformat):
         problem_table = df[["event", "doc_id", "sent_ind", "start", "end", "modality", "left", "right"]]
         problem_table["left"] = problem_table.left.apply(lambda x: ' '.join(x))
         problem_table["right"] = problem_table.right.apply(lambda x: ' '.join(x))
+        # combine sent
+        problem_table["sent"] = problem_table.left + ' <p> ' + problem_table.event + ' </p> ' + problem_table.right
 
         return problem_table
 
@@ -308,12 +305,14 @@ class Reformat2010(Reformat):
 
 class Reformat2012(Reformat):
 
-    def __init__(self, text_src: str, srcfolder: str, dataset_type: str = 'train', to_compress: bool = False, raw_pref: str = '.xml',
-                    tags={'xml':[('<e2>', '</e2>'), ('<e1>', '</e2>')], 'nonxml':[('ebs', 'ebe'), ('eas', 'eae')]}, 
-                    window_size=1500):
-        super(Reformat2012, self).__init__(text_src, srcfolder, dataset_type)
-        self.tags = tags
-        self.window_size = window_size
+    def __init__(self, prep_config: PrepConfig):
+        """
+
+        :param prep_config:
+        """
+        super(Reformat2012, self).__init__(prep_config)
+        self.tags = prep_config.temprel_tags
+        self.window_size = prep_config.window_size
 
     def extract_tlink(self, path_to_tlinks):
         """
@@ -467,8 +466,8 @@ class Reformat2012(Reformat):
         """
         # extract info from each document and concatenate them together in one big table
         problems, temp_rel = zip(*[self.extract_table(os.path.join(folder, f'{doc_id}.xml.extent'),
-                                                 os.path.join(folder, f'{doc_id}.xml.tlink'),
-                                                 doc_id)
+                                                      os.path.join(folder, f'{doc_id}.xml.tlink'),
+                                                      doc_id)
                                    for doc_id in docs])
 
         table_problems = pd.concat(problems, ignore_index=True)
@@ -558,6 +557,9 @@ class Reformat2012(Reformat):
         problem_table = df[["event", "doc_id", "sent_ind", "start", "end", "modality", "polarity", "left", "right"]]
         problem_table["left"] = problem_table.left.apply(lambda x: ' '.join(x))
         problem_table["right"] = problem_table.right.apply(lambda x: ' '.join(x))
+
+        # combine sent
+        problem_table["sent"] = problem_table.left + ' <p> ' + problem_table.event + ' </p> ' + problem_table.right
 
         # save pol table
         print('Extract POLARITY table')
@@ -779,7 +781,8 @@ class Reformat2012(Reformat):
 
         # mark EVENT in context
         table['sent'] = table.apply(lambda row:
-                                    self.mark_sec_event_universal(event=row['event'], other=row['other_event'],
+                                    self.mark_sec_event_universal(
+                                        event=row['event'], other=row['other_event'],
                                         left=row['left_cross'], right=row['right_cross'],
                                         sent_inds=[row['sent_ind'], row['other_sent_ind']], 
                                         starts=[row['start'], row['other_start']], 
