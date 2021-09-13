@@ -3,25 +3,22 @@ import torch
 
 
 class Config:
-    def __init__(self, device: torch.device = torch.device('cpu')):
+    def __init__(self):
         """
 
-        :param device:
         """
-        self.device = device
+        self.device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 
 class PrepConfig(Config):
-    def __init__(self, device: torch.device, text_src: str, srcfolder: str, outfolder: str,
+    def __init__(self, srcfolder: str, outfolder: str,
                     dataset_type: str = 'train',  to_compress: bool = False, raw_pref: str = '.xml',
                  temprel_tags={'xml': [('<e2>', '</e2>'), ('<e1>', '</e2>')],
                                'nonxml': [('ebs', 'ebe'), ('eas', 'eae')]},
-                 window_size=1500
+                 window_size=1500,
                  ):
         """
 
-        :param device:
-        :param text_src:
         :param srcfolder:
         :param outfolder:
         :param dataset_type:
@@ -30,7 +27,7 @@ class PrepConfig(Config):
         :param temprel_tags:
         :param window_size:
         """
-        super(PrepConfig, self).__init__(device)
+        super(PrepConfig, self).__init__()
 
         self.window_size = window_size
         self.temprel_tags = temprel_tags
@@ -39,18 +36,16 @@ class PrepConfig(Config):
         self.dataset_type = dataset_type
         self.outfolder = outfolder
         self.srcfolder = srcfolder
-        self.text_src = text_src
 
 
 class EmbeddingConfig(Config):
-    def __init__(self, device: torch.device = torch.device('cpu'), etype: str = 'bert', never_split=None):
+    def __init__(self, etype: str = 'bert', never_split=None):
         """
 
-        :param device:
         :param etype:
         :param never_split:
         """
-        super(EmbeddingConfig, self).__init__(device)
+        super(EmbeddingConfig, self).__init__()
 
         self.etype = etype
         self.never_split = never_split
@@ -62,12 +57,12 @@ class ModelConfig(Config):
                  model_path='bert-base-uncased',  # tokenizer
                  train_model_path='model.pt',  # in case of continue the training from old training
                  batch_size: int = 500, hidden_size: int = 512, num_layers: int = 2, num_epochs: int = 10,
-                 device: torch.device = torch.device('cpu'), drop_prob: float = 0.2,  # train hyperparameters
+                 drop_prob: float = 0.2,  # train hyperparameters
                  freeze_bert: bool = False, finetune=False, bert_hidden_size=768,  # type of model
                  l_rate: float = 0.001, eps: float = 1e-8,  # optimizer hyperparameters
                  model_save_path='out/model', infer_save_path='out/infer'  # output path
                  ):
-        super(ModelConfig, self).__init__(device)
+        super(ModelConfig, self).__init__()
         
         # for tokenizer and bertmodel, both in embedding and in finetuning
         self.model_path = model_path
