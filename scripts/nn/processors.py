@@ -3,12 +3,11 @@
 """
 
 """
-#from scripts.prep.embeddings import SentenceEmbedding
-from .models import GRUNet, BiLSTMNet, BertNet
+
 import torch
 import torch.nn as nn
 from torch.utils.data import TensorDataset, DataLoader, RandomSampler, SequentialSampler, random_split
-import datetime, time, random, sys
+import datetime, time, random
 from scripts.nn.metrics import accuracy_score, prec_rec_fscore
 from .config import ModelConfig, EmbeddingConfig
 from transformers import BertTokenizer, BertModel, get_linear_schedule_with_warmup
@@ -288,6 +287,7 @@ class ModelProcessor:
             logits = logits.to('cpu')
             label_ids = b_labels.to('cpu')
 
+            # Calculate metrics
             prec, rec, f1 = prec_rec_fscore(label_ids, logits)
 
             total_train_prec += prec
