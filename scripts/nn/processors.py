@@ -17,6 +17,7 @@ from scripts.utils.loaders import FrameLoader, ModelLoader
 from scripts.utils.savers import ModelSaver, FrameSaver
 import numpy as np
 
+
 class EntityEmbeddingProcessor:
 
     """
@@ -59,8 +60,6 @@ class EntityEmbeddingProcessor:
         self.embedding1 = self.embedding1.to(device)
         self.embedding2 = self.embedding2.to(device)
 
-
-
     def __call__(self, input_ids, input_mask=None, tokenizer=None):
         inputs = None
         if self.etype == 'bert' or self.etype == 'clinicalbert':
@@ -93,7 +92,7 @@ class EntityEmbeddingProcessor:
             # 4. extract the embeddings only
             flair = torch.stack([torch.stack([tok.embedding for tok in sent]) for sent in tok_sents])
 
-            ## stacking clinicalbert and flair
+            # stacking clinicalbert and flair
             inputs = torch.cat([clinicalbert, flair], dim=-1)
 
         return inputs
