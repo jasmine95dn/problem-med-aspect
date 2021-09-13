@@ -23,6 +23,11 @@ class EntityEmbeddingProcessor:
 
     """
     def __init__(self, etype, device):
+        """
+
+        :param etype:
+        :param device:
+        """
         self.etype = etype
         self.embedding1 = None
         self.embedding2 = None
@@ -96,20 +101,22 @@ class EntityEmbeddingProcessor:
 
 class ModelProcessor:
 
-    def __init__(self, model_config: ModelConfig, model,
-                 embedding_config: EmbeddingConfig, never_split=None):
+    def __init__(self, model_config: ModelConfig, model, embedding_config: EmbeddingConfig):
         """
 
+        :param model_config:
+        :param model:
+        :param embedding_config:
         """
 
         # data
         self.tokenizer = BertTokenizer.from_pretrained(model_config.model_path,
-                                                       do_lower_case=True, never_spit=never_split)
+                                                       do_lower_case=True, never_spit=embedding_config.never_split)
         train_sents, train_labels = FrameLoader.load_frame(model_config.train_path)
         train_dataset, val_dataset = self.split_train(train_data=self.tokenize(train_sents, train_labels),
-                                                    prop=model_config.proportion)
+                                                        prop=model_config.proportion)
         test_sents, test_labels = FrameLoader.load_frame(model_config.test_path)
-        test_dataset = self.tokenize(model_config.model_path, test_sents, test_labels, never_split)
+        test_dataset = self.tokenize(model_config.model_path, test_sents, test_labels, embedding_config.never_split)
 
         self.train_loader = self.data_loader(train_dataset, sampler=RandomSampler, batch_size=model_config.batch_size)
         self.valid_loader = self.data_loader(val_dataset, sampler=SequentialSampler, batch_size=model_config.batch_size)
@@ -117,6 +124,7 @@ class ModelProcessor:
 
         # define embedding
         self.embedding = EntityEmbeddingProcessor(etype=embedding_config.etype, device=embedding_config.device)
+        self.emb_type = embedding_config.etype
 
         # define model
         self.model = model(input_size=self.embedding.size, hidden_size=model_config.hidden_size,
@@ -410,9 +418,14 @@ class ModelProcessor:
 
         return predictions, true_labels
 
-    def __call__(self, mode='train', info='start', train_model_path=None, save_path=None, infer_save_path=None):
+    def __call__(self, mode='train', info='start', train_model_path=None):
+        """
 
-        save_path = self.model_save_path if not save_path
+        :param mode:
+        :param info:
+        :param train_model_path:
+        :return:
+        """
 
         if mode == 'train':
 
@@ -498,7 +511,7 @@ class ModelProcessor:
                     best_valid_loss = avg_val_loss
 
                     ModelSaver.save_checkpoint(self.model, self.optimizer, avg_val_loss,
-                                               path=f'{save_path}_saved_weight_epoch{epoch_i}.pt')
+                                        path=f'{self.model_save_path}/{self.emb_type}_saved_weight_epoch{epoch_i}.pt')
 
                 # check if loss stays unchanged
                 if last_val_loss == avg_val_loss:
@@ -516,7 +529,8 @@ class ModelProcessor:
 
             print("Total training took {:} (h:mm:ss)".format(self.format_time(time.time()-total_t0)))
 
-            ModelSaver.save_checkpoint(self.model, self.optimizer, last_val_loss, path=f'{save_path}_model.pt')
+            ModelSaver.save_checkpoint(self.model, self.optimizer, last_val_loss,
+                                       path=f'{self.model_save_path}/{self.emb_type}_model.pt')
 
         elif mode == 'test': # model loader before call
             # load model to test
@@ -536,8 +550,7 @@ class ModelProcessor:
             print(f"  Accuracy: {acc:.2f}")
 
             # save for inference
-            infer_save_path = self.infer_save_path if not infer_save_path
-            FrameSaver.save_infer_frame(predictions, true_labels, infer_save_path)
+            FrameSaver.save_infer_frame(predictions, true_labels, f'{self.infer_save_path}/{self.emb_type}_infer.json')
 
 
 
