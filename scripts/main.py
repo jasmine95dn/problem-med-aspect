@@ -46,7 +46,8 @@ class Problem(object):
         # define configurations
         if args.ttags:
             tags = {'xml': args.ttags[:2], 'nonxml': args.ttags[2:]}
-        else: tags = args.ttags
+        else:
+            tags = args.ttags
         config = PrepConfig(srcfolder=args.input, outfolder=args.output, dataset_type=args.dtype,
                             to_compress=args.compress, raw_pref=args.raw_pref,
                             temprel_tags=tags, window_size=args.window_size)
@@ -57,56 +58,91 @@ class Problem(object):
         parser = argparse.ArgumentParser(description='Run model')
 
         # model configurations
+        # 1. data
         parser.add_argument('train', type=str,  help='input training file, expected json file')
         parser.add_argument('test', type=str, help='input test file, expected json file')
-        parser.add_argument('--labels', type=list)
+        parser.add_argument('--labels', type=int, nargs='+', default=[0, 1, 2],
+                            help='list of labels (default: [0,1,2])')
+        parser.add_argument('--train_prop', type=float, default=0.9,
+                            help='train data proportion from whole training set (default: 0.9)')
+        # 2. tokenizer
+        parser.add_argument('--model_path', type=str, default='bert-base-uncased',
+                            help='transformers BERT tokenizer model (default: bert-base-uncased)')
 
-        parser.add_argument('-o', '--output', type=str, default='new_model.pt', help='output file')
+        # 3. in case of continuing the training from saved model
+        parser.add_argument('--train_model_path', type=str, default=None,
+                            help='continue the training process from which checkpoint, input is a .pt file')
+
+        # 4. model type freeze_bert=False, finetune=False, bert_hidden_size=768
+        parser.add_argument('--finetune', action='store_true',
+                            help='call this flag to call finetuned model instead of RNN')
+        parser.add_argument('-bhs', '--bert_hidden_size', type=int, default=768,
+                            help='BERT hidden size as input (default: 768)')
+        parser.add_argument('--freeze_bert', action='store_true',
+                            help='call this flag in testing mode from finetuning')
+
+        # 5. train hyperparameter batch_size=500, hidden_size=512, num_layers=2, num_epochs=10, drop_prob=0.2
+        # l_rate=0.001, eps=1e-8,
+        parser.add_argument('-hs', '--hidden_size', type=int, default=512, help='hidden size')
+        parser.add_argument('-b', '--batch_size', type=int, default=8, help='batch size')
+        parser.add_argument('-n', '--num_layers', type=int, default=2,
+                            help='''number of hidden layers of RNN classifier (default: 2 layers)''')
+        parser.add_argument('-n_epochs', type=int, help='number of training epochs (default: 10 epochs)')
+
+        parser.add_argument('-lr', '--l_rate', type=float, default=0.001,
+                            help='''learning rate (default: 0.001''')
+        parser.add_argument('--eps', type=float, default=1e-8,
+                            help='''AdamW optimizer epsilon (default: 1e-8)''')
+        parser.add_argument('--dropout', type=float, default=0.2, help='RNN dropout rate')
+
+        # 6. outputs
+        parser.add_argument('-o', '--output', type=str, default='out/model',
+                            help='output path for model saved, only prefix, no definition of ending file')
+        parser.add_argument('-i', '--infer_output', type=str, default='out/infer',
+                            help='''output inference path to save true and predicted labels in testing, 
+                            only prefix, no definition of ending file''')
+
+        # embedding configurations
+        parser.add_argument('-et', '--etype', type=str, default='bert', help='embedding type')
+        parser.add_argument('--never_split', type=list, default=None,
+                        help='tokens that are not split by WordPieceTokenizer from BERTTokenizer, default: <p>, </p>')
+
+        # direct specification for training model
         parser.add_argument('-t', '--task', type=str, default='modpol', help='task name')
         parser.add_argument('--sent_status', type=str, default='within',
                             help='status for classifier in rela-task (default: within)')
         parser.add_argument('--mode', type=str, default='train',
                             help='which mode to run this model, train or test (default: train)')
-
-        # hyperparameter
-        parser.add_argument('-n', '--n_layers', type=int, default=3,
-                            help='''number of hidden layers of classifier (default: 3 layers)''')
-
-        parser.add_argument('-lr', '--l_rate', type=float, default=0.0001,
-                            help='''learning rate (default: 0.0001''')
-        parser.add_argument('-opt', '--optim', type=str, default='Adam',
-                            help='''optimizer (default: Adam)''')
-        # todo: dropout, hidden size, batch size,
-        parser.add_argument('--dropout')
-        parser.add_argument('-hs', '--hidden_size', type=int, default=256, help='hidden size')
-        parser.add_argument('-b', '--batch_size', type=int, default=32, help='batch size')
-
-        # training mode
-
-        # embedding config
-        parser.add_argument('-et', '--etype', type=str, default='bert', help='embedding type')
-        parser.add_argument('--never_split', type=list, default=None,
-                        help='tokens that are not split by WordPieceTokenizer from BERTTokenizer, default: <p>, </p>')
+        parser.add_argument('--cond', type=str, action='store_true',
+                            help='''call this flag to inform whether continue from pretrained RNN model, 
+                                    only work with flag --mode and have to specify with flag --train_model_path 
+                                    (default: off, training from the beginning)''')
 
         args = parser.parse_args(sys.argv[2:])
 
         # define embedding configuration
         embedding_config = EmbeddingConfig(etype=args.etype, never_split=args.never_split)
 
+        # check flags
+        # 1. if --cond is on, --train_model_path must be specified
+        if args.cond and not args.train_model_path:
+            sys.stderr.write('No pretrained model is specified')
+            sys.exit(1)
+
         # define model configuration
         model_config = ModelConfig(
-                train_path=args.train, test_path=args.test, labels=[0, 1, 2], proportion=0.9,  # raw data
-                model_path='bert-base-uncased',  # tokenizer
-                train_model_path='model.pt',  # in case of continue the training from old training
-                batch_size= 500, hidden_size= 512, num_layers= 2, num_epochs = 10,
-                drop_prob = 0.2,  # train hyperparameters
-                freeze_bert= False, finetune=False, bert_hidden_size=768,  # type of model
-                l_rate= 0.001, eps= 1e-8,  # optimizer hyperparameters
-                model_save_path='out/model', infer_save_path='out/infer')
+                train_path=args.train, test_path=args.test, labels=args.labels, proportion=args.train_prop,  # raw data
+                model_path=args.model_path,  # tokenizer
+                train_model_path=args.train_model_path,  # in case of continue the training from old training
+                batch_size=args.batch_size, hidden_size=args.hidden_size, num_layers=args.num_layers,
+                num_epochs=args.num_epochs, drop_prob=args.dropout,  # train hyperparameters
+                freeze_bert=args.freeze_bert, finetune=args.finetune,
+                bert_hidden_size=args.bert_hidden_size,  # type of model
+                l_rate=args.l_rate, eps=args.eps,  # optimizer hyperparameters
+                model_save_path=args.output, infer_save_path=args.infer_output)
 
-        # todo: run_mod
         commanders.run_mod(model_config, embedding_config,
-                           mod=args.task, sent_state=args.sent_status, mode=args.mode, info='start')
+                           mod=args.task, sent_state=args.sent_status, mode=args.mode, cond=args.info)
 
     def eval(self):
         parser = argparse.ArgumentParser(description='Run evaluation')
