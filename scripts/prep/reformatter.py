@@ -224,7 +224,7 @@ class Reformat2010(Reformat):
         :param folder:
         :return:
         """
-        # extract info from each document and concatenate them together in one big table
+        # extract cond from each document and concatenate them together in one big table
         problems = pd.concat([self.extract_table(os.path.join(folder, f'{doc_id}.con'),
                                                  os.path.join(folder, f'{doc_id}.ast'),
                                                  doc_id)
@@ -465,7 +465,7 @@ class Reformat2012(Reformat):
         :param folder:
         :return:
         """
-        # extract info from each document and concatenate them together in one big table
+        # extract cond from each document and concatenate them together in one big table
         problems, temp_rel = zip(*[self.extract_table(os.path.join(folder, f'{doc_id}.xml.extent'),
                                                       os.path.join(folder, f'{doc_id}.xml.tlink'),
                                                       doc_id)
