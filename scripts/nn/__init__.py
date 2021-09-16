@@ -6,7 +6,7 @@ from scripts.nn.models import GRUNet, BiLSTMNet, BertNet
 
 
 class ModPolProcessor:
-    def __init__(self, model_config:ModelConfig, embedding_config:EmbeddingConfig):
+    def __init__(self, model_config: ModelConfig, embedding_config: EmbeddingConfig):
         """
 
         :param model_config:
@@ -15,18 +15,18 @@ class ModPolProcessor:
         self.processor = processors.ModelProcessor(model_config=model_config, model=GRUNet,
                                                     embedding_config=embedding_config)
 
-    def __call__(self, mode='train', info='start'):
+    def __call__(self, mode='train', cond=False):
         """
 
         :param mode:
-        :param info:
+        :param cond:
         :return:
         """
-        self.processor(mode, info)
+        self.processor(mode, cond)
 
 
 class RelaProcessor:
-    def __init__(self, model_config, embedding_config, within_mode=True):
+    def __init__(self, model_config: ModelConfig, embedding_config: EmbeddingConfig, within_mode: bool = True):
         """
 
         :param model_config:
@@ -40,13 +40,13 @@ class RelaProcessor:
             self.processor = processors.ModelProcessor(model_config=model_config, model=BertNet,
                                                        embedding_config=embedding_config)
 
-    def __call__(self, mode='train', info='start'):
+    def __call__(self, mode='train', cond=False):
         """
 
         :param mode:
-        :param info:
+        :param cond:
         :return:
         """
-        self.processor(mode, info)
+        self.processor(mode, cond)
 
 
