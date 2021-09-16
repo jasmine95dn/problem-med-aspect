@@ -420,11 +420,11 @@ class ModelProcessor:
 
         return predictions, true_labels
 
-    def __call__(self, mode='train', info='start'):
+    def __call__(self, mode='train', cond=False):
         """
 
         :param mode:
-        :param info:
+        :param cond:
         :return:
         """
 
@@ -446,7 +446,7 @@ class ModelProcessor:
             epoch_start = 1
 
             # if continue the training and not from the start
-            if info == 'cond':
+            if cond:
                 state_dict = ModelLoader.load_model(self.train_model_path, self.device)
                 epoch_start = int(self.train_model_path[-4])
                 self.model.load_state_dict(state_dict['model_state_dict'])
