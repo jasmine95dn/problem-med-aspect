@@ -16,7 +16,7 @@ def run_prep(prepconfig, year='2012'):
     processor()
 
 
-def run_mod(model_config, embedding_config, mod='modpol', sent_state='within', mode='train', info='start'):
+def run_mod(model_config, embedding_config, mod='modpol', sent_state='within', mode='train', cond=False):
     """
 
     :param model_config:
@@ -24,7 +24,7 @@ def run_mod(model_config, embedding_config, mod='modpol', sent_state='within', m
     :param mod:
     :param sent_state:
     :param mode:
-    :param info:
+    :param cond:
     :return:
     """
     processor = None
@@ -36,7 +36,7 @@ def run_mod(model_config, embedding_config, mod='modpol', sent_state='within', m
         print(f'Run RelaProcessor, {sent_state} model')
         processor = nn.RelaProcessor(model_config, embedding_config, within_mode=within_mode)
 
-    processor(mode=mode, info=info)
+    processor(mode=mode, cond=cond)
 
 
 def run_eval(**kwargs):
