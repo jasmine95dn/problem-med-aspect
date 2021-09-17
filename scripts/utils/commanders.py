@@ -1,8 +1,7 @@
 # -*- coding: utf8 -*-
 import scripts.nn as nn
 import scripts.prep as prep
-import scripts.eval.evaluators as evaluators
-import scripts.eval.plotters as plotters
+import scripts.eval as evaluator
 
 
 def run_prep(prepconfig, year='2012'):
@@ -39,9 +38,10 @@ def run_mod(model_config, embedding_config, mod='modpol', sent_state='within', m
     processor(mode=mode, cond=cond)
 
 
-def run_eval(**kwargs):
-    evaluators.evaluate_error(**kwargs)
+def run_plot(config):
+    """
 
-
-def run_plot(**kwargs):
-    plotters.cf_matrix_plot(**kwargs)
+    :param config:
+    :return:
+    """
+    evaluator.cf_matrix(config)
