@@ -65,3 +65,21 @@ class FrameLoader(Loader):
         labels = df.label.values
 
         return sentences, labels
+
+    @classmethod
+    def load_infer_frame_cf_matrix(cls, path):
+        """
+
+        :param path:
+        :return:
+        """
+        assert (path is not None)
+        print(f'Inferred data loaded from <=== {path}')
+        # Load the inferred output with predicted and true labels to compare
+        df = pd.read_json(path)
+
+        # Extract true and predicted labels
+        true = df.true
+        pred = df.pred
+
+        return true, pred
