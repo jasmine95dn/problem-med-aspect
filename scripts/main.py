@@ -2,7 +2,7 @@
 import argparse
 import sys
 import scripts.utils.commanders as commanders
-from scripts.nn.config import PrepConfig, ModelConfig, EmbeddingConfig
+from scripts.nn.config import PrepConfig, ModelConfig, EmbeddingConfig, PlotConfig
 
 
 class Problem(object):
@@ -15,7 +15,6 @@ class Problem(object):
             Commands for this script:
             prep    Run prepocessing
             mod     Run processor
-            eval    Run evaluator
             plot    Run plotter''')
 
         parser.add_argument('command', help='Subcommand to run')
@@ -144,21 +143,23 @@ class Problem(object):
         commanders.run_mod(model_config, embedding_config,
                            mod=args.task, sent_state=args.sent_status, mode=args.mode, cond=args.info)
 
-    def eval(self):
-        parser = argparse.ArgumentParser(description='Run evaluation')
-        parser.add_argument()
-        args = parser.parse_args(sys.argv[2:])
-        
-        # todo: run_eval
-        commanders.run_eval(args)
-
     def plot(self):
         parser = argparse.ArgumentParser(description='Run plot')
-        parser.add_argument()
+        parser.add_argument('input', type=str, help='input infererred .json file to plot')
+        parser.add_argument('--output', type=str, default='./', help='output path to save (default :./)')
+        parser.add_argument('--ptype', type=str, default='cf_matrix', help='type of plot to use (default: cf_matrix)')
+        parser.add_argument('--noerror', action='store_false',
+                            help='if not called, then cf matrix returned is for the wrong labeling matrix')
+        parser.add_argument('--labels', type=int, nargs='+', default=[0,1,2], help='labels (default: [0,1,2])')
+        parser.add_argument('--size', type=int, nargs=2, default=(5,5), help='plot size')
+        parser.add_argument('--show_only', action='store_true',
+                            help='whether to show this plot only, flag not called then figure will be saved')
         args = parser.parse_args(sys.argv[2:])
-        
-        # todo: run_plot
-        commanders.run_plot(args)
+
+        config = PlotConfig(infer_path=args.input, output_path=args.output, ptype=args.ptype, error=args.noerror,
+                            labels=args.labels, figsize=args.size, to_save=args.show_only)
+        # run
+        commanders.run_plot(config)
 
 
 if __name__ == '__main__':
