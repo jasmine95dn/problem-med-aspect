@@ -62,6 +62,27 @@ class ModelConfig(Config):
                  l_rate: float = 0.001, eps: float = 1e-8,  # optimizer hyperparameters
                  model_save_path='out/model', infer_save_path='out/infer'  # output path
                  ):
+        """
+
+        :param train_path:
+        :param test_path:
+        :param labels:
+        :param proportion:
+        :param model_path:
+        :param train_model_path:
+        :param batch_size:
+        :param hidden_size:
+        :param num_layers:
+        :param num_epochs:
+        :param drop_prob:
+        :param freeze_bert:
+        :param finetune:
+        :param bert_hidden_size:
+        :param l_rate:
+        :param eps:
+        :param model_save_path:
+        :param infer_save_path:
+        """
         super(ModelConfig, self).__init__()
         
         # for tokenizer and bertmodel, both in embedding and in finetuning
@@ -100,4 +121,19 @@ class ModelConfig(Config):
         # for finetuning
         self.freeze_bert = freeze_bert
         self.input_size = bert_hidden_size
+
+
+class PlotConfig(Config):
+
+    def __init__(self, infer_path, output_path, ptype='cf_matrix', error=True,
+                    labels=[0, 1, 2], figsize=(5, 5), to_save=True):
+        super(PlotConfig, self).__init__()
+        self.to_save = to_save
+        self.figsize = figsize
+        self.labels = labels
+        self.error = error
+        self.ptype = ptype
+        self.output_path = output_path
+        self.infer_path = infer_path
+        
 
