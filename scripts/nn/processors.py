@@ -23,10 +23,13 @@ class EntityEmbeddingProcessor:
     """
 
     """
-    def __init__(self, etype, device):
+    def __init__(self, etype, device, finetune=False):
         """
-
-        :param etype:
+        Define an embedding processor representing an entity from an input sequence
+        :param etype: type of embedding, name on this list:
+            - BERT (bert-large-uncased-whole-word-masking)
+            - FLAIR (trained on news corpus)
+            - ClinicalBERT (emily/alsentzer
         :param device:
         """
         self.etype = etype
@@ -34,13 +37,18 @@ class EntityEmbeddingProcessor:
         self.embedding2 = None
         self.size = 512
 
-        if etype in {'bert', 'clinicalbert'}:
-            self.embedding1 = BertModel.from_pretrained('bert-large-uncased-whole-word-masking') if etype == 'bert' \
+        if etype in {'bert', 'clinicalbert', 'biobert'}:
+            if finetune:
+                self.embedding1 = BertModel.from_pretrained('bert-base-uncased') if etype == 'bert' \
+                        else BertModel.from_pretrained('emilyalsentzer/Bio_ClinicalBERT') if etype == 'clinicalbert' \
+                        else BertModel.from_pretrained('dmslab/BioBERT v1.1')
+            else:
+                self.embedding1 = BertModel.from_pretrained('bert-large-uncased-whole-word-masking') if etype == 'bert' \
                             else BertModel.from_pretrained('emilyalsentzer/Bio_ClinicalBERT')
             self.size = self.embedding1.config.hidden_size
 
         elif etype in {'flair', 'hunflair', 'bertflair', 'berthunflair'}:
-            flair_embs = [FlairEmbeddings('pubmed-forward'),FlairEmbeddings('pubmed-backward')] \
+            flair_embs = [FlairEmbeddings('pubmed-forward'), FlairEmbeddings('pubmed-backward')] \
                         if etype.endswith('hunflair') \
                         else [FlairEmbeddings('news-forward'), FlairEmbeddings('news-backward')]
             emb = TransformerWordEmbeddings('bert-large-uncased-whole-word-masking') if etype.startswith('bert') \
@@ -54,7 +62,7 @@ class EntityEmbeddingProcessor:
             self.embedding1 = BertModel.from_pretrained('emilyalsentzer/Bio_ClinicalBERT')
             self.embedding2 = StackedEmbeddings([FlairEmbeddings('news-forward'), FlairEmbeddings('news-backward')])  \
                             if etype == 'clinicalbertflair' \
-                        else StackedEmbeddings([FlairEmbeddings('pubmed-forward'),FlairEmbeddings('pubmed-backward')])
+                        else StackedEmbeddings([FlairEmbeddings('pubmed-forward'), FlairEmbeddings('pubmed-backward')])
             self.size = self.embedding1.config.hidden_size + self.embedding2.embedding_length
 
         self.embedding1 = self.embedding1.to(device)
@@ -178,7 +186,7 @@ class ModelProcessor:
         return dataset
 
     @staticmethod
-    def split_train(train_data:TensorDataset, prop:float=0.9):
+    def split_train(train_data:TensorDataset, prop: float = 0.9):
         """
 
         :param train_data:
@@ -194,7 +202,7 @@ class ModelProcessor:
 
 
     @staticmethod
-    def data_loader(dataset: TensorDataset, sampler, batch_size: int=8) -> DataLoader:
+    def data_loader(dataset: TensorDataset, sampler, batch_size: int = 8) -> DataLoader:
         """
         speed of training by dividing and process data in batches
         :param dataset:
@@ -202,9 +210,9 @@ class ModelProcessor:
         :param batch_size:
         :return:
         """
-        return DataLoader(dataset, # data samples
-                          sampler = sampler(dataset), # select batch
-                          batch_size = batch_size)
+        return DataLoader(dataset,  # data samples
+                          sampler=sampler(dataset),  # select batch
+                          batch_size=batch_size)
 
     @staticmethod
     def format_time(elapsed):
@@ -243,7 +251,6 @@ class ModelProcessor:
         total_train_prec = 0
         total_train_rec = 0
         total_train_f1 = 0
-
 
         # model in train mode
         self.model.train()
@@ -329,7 +336,6 @@ class ModelProcessor:
         total_eval_rec = 0
         total_eval_f1 = 0
         total_eval_loss = 0
-
 
         # Evaluate data for one epoch
         for batch in dataloader:
