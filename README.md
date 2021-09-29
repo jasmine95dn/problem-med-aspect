@@ -6,27 +6,27 @@ Repository structure is as follows:
 ```bash
 .
 ├── result - Result from experiments, each consists of analysis, test and training reports
-│   ├── output_mod - 
+│   ├── output_mod - in Modality task
 │   │   ├── analysis
 │   │   │   ├── ...
 │   │   ├── test
 │   │   │   ├── ...
 │   │   └── train
 │   │       ├── ...
-│   ├── output_pol
+│   ├── output_pol - in Polarity task
 │   │   ├── analysis
 │   │   │   ├── ...
 │   │   ├── test
 │   │   │   ├── ...
 │   │   └── train
 │   │       ├── ...
-│   ├── output_univ
-│   │   ├── nosep
+│   ├── output_univ - in Temporal Relation task with "universal" model
+│   │   ├── nosep - sentences in 1 instance are not marked through SEP, take context window size as the maximum length a pair can have
 │   │   │   ├── test
 │   │   │   │   ├── ...
 │   │   │   └── train
 │   │   │       ├── ...
-│   │   ├── sep
+│   │   ├── sep - 
 │   │   │   ├── analysis
 │   │   │   │   ├── ...
 │   │   │   ├── test
@@ -43,14 +43,14 @@ Repository structure is as follows:
 │   │       │   ├── ...
 │   │       └── train
 │   │           ├── ...
-│   └── output_within
+│   └── output_within - in Temporal Relation task in "within-cases"
 │       ├── analysis
 │       │   ├── ...
 │       ├── test
 │       │   ├── ...
 │       └── train
 │           ├── ...
-├── scripts
+├── scripts - scripts to run the whole experiments
 │   ├── README.md
 │   ├── __init__.py
 │   ├── eval
@@ -74,3 +74,4 @@ Repository structure is as follows:
 │       └── savers.py
 └── visualization
 ```
+
