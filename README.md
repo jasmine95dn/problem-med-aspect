@@ -1,4 +1,4 @@
-# problem-med-aspect
+# Medical concept PROBLEM: Polarity, Modality and Temporal Relations
 This repository contains my scripts, result reports and visualization for my bachelor thesis "Medical concept PROBLEM: Polarity, Modality and Temporal Relations"
 
 Repository structure is as follows:
