@@ -20,14 +20,14 @@ based on research from [Lin et al., 2019](https://www.aclweb.org/anthology/W19-1
 
 Each PROBLEM entity has 2 values, **polarity** (NEG, POS) and **modality** (FACTUAL, NONFACTUAL).
 
-<img src="https://github.com/jasmine95dn/problem-med-aspect/blob/main/modpol.png" alt="polmod" height="50%" width="50%"/>
+<p align="center"><img src="https://github.com/jasmine95dn/problem-med-aspect/blob/main/modpol.png" alt="polmod" height="55%" width="55%"/></p>
 
 
 ### Temporal Relations
 
 All **temporal relations** (BEFORE, AFTER, OVERLAP) towards a pair of **< PROBLEM, OTHER EVENT >** inter- and intrasententially are reported.
 
-![temprel](https://github.com/jasmine95dn/problem-med-aspect/blob/main/temprel_figure.png)
+<p align="center"><img src="https://github.com/jasmine95dn/problem-med-aspect/blob/main/temprel_figure.png" alt="temprel" height="65%" width="65%"/></p>
 
 ---
 
