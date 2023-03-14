@@ -3,7 +3,7 @@
 This repository contains my scripts and some visualizations for my bachelor thesis "Medical concept PROBLEM: Polarity, Modality and Temporal Relations".
 
 PROBLEM is considered one of the key medical concepts as it plays a vital role in research for medical information of a patient.
-In my thesis, different experiments to extract 3 aspects of this concept were conducted based on the guidelines and annotated data from the i2b2 2010 and i2b2 2012 ([Uzuner et al., 2011](https://academic.oup.com/jamia/article/18/5/552/830538), [Sun et al., 2013](https://www.sciencedirect.com/science/article/pii/S1532046413001032)) datasets.
+In my thesis, different experiments to extract 3 aspects of this concept were conducted based on the guidelines and annotated data from the **i2b2 2010** and **i2b2 2012** ([Uzuner et al., 2011](https://academic.oup.com/jamia/article/18/5/552/830538), [Sun et al., 2013](https://www.sciencedirect.com/science/article/pii/S1532046413001032)) datasets.
 
 This thesis is to show the effects of different techniques on clinical data. 
 This includes **Bi-RNN-based models** (*Bi-GRU*, *Bi-LSTM*), **contextual embeddings** (*BERT*, *FLAIR*),
@@ -42,8 +42,8 @@ All **temporal relations** (BEFORE, AFTER, OVERLAP) towards a pair of **< PROBLE
 ---
 
 ## References
-* Chen Lin, Timothy Miller, Dmitriy Dligach, Steven Bethard, and Guergana Savova. A BERT-based Universal Model for Both Within- and Cross-sentence Clinical Temporal Relation Extraction. [URL](https://www.aclweb.org/anthology/W19-1908)
-* Chen Lin, Timothy Miller, Dmitriy Dligach, Farig Sadeque, Steven Bethard, and Guergana Savova. A BERT-based One-Pass Multi-Task Model for Clinical Temporal Relation Extraction. [URL](https://aclanthology.org/2020.bionlp-1.7)
+* Chen Lin, Timothy Miller, Dmitriy Dligach, Steven Bethard, and Guergana Savova. *A BERT-based Universal Model for Both Within- and Cross-sentence Clinical Temporal Relation Extraction*. June 2019. [URL](https://www.aclweb.org/anthology/W19-1908)
+* Chen Lin, Timothy Miller, Dmitriy Dligach, Farig Sadeque, Steven Bethard, and Guergana Savova. *A BERT-based One-Pass Multi-Task Model for Clinical Temporal Relation Extraction*. July 2020. [URL](https://aclanthology.org/2020.bionlp-1.7)
 
 
 
