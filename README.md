@@ -20,7 +20,7 @@ based on research from [Lin et al., 2019](https://www.aclweb.org/anthology/W19-1
 
 Each PROBLEM entity has 2 values, **polarity** (NEG, POS) and **modality** (FACTUAL, NONFACTUAL).
 
-![polmod](https://github.com/jasmine95dn/problem-med-aspect/blob/main/modpol.png)
+<img src="https://github.com/jasmine95dn/problem-med-aspect/blob/main/modpol.png" alt="polmod" height="50%" width="50%"/>
 
 
 ### Temporal Relations
