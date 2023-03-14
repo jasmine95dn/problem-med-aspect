@@ -7,7 +7,7 @@ In my thesis, different experiments to extract 3 aspects of this concept were co
 
 This thesis is to show the effects of different techniques on clinical data. 
 This includes **Bi-RNN-based models** (*Bi-GRU*, *Bi-LSTM*), **contextual embeddings** (*BERT*, *FLAIR*),
-**domain-specific data the embeddings were pre-trained on** (*ClinicalBERT*, *HunFLAIR*), and **fine-tuning** [Lin et al., 2018](https://aclanthology.org/2020.bionlp-1.7).
+**domain-specific data the embeddings were pre-trained on** (*ClinicalBERT*, *HunFLAIR*), and **fine-tuning** ([Lin et al., 2018](https://aclanthology.org/2020.bionlp-1.7)).
 Also, to observe the importance of entity markup (how the entities are distinguished when fed into pre-trained Language Model),
 based on research from [Lin et al., 2019](https://www.aclweb.org/anthology/W19-1908), *XML* and *non-XML markers* were under experiments.
 
