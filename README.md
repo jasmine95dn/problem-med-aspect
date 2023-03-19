@@ -8,6 +8,12 @@ In my thesis, different experiments to extract 3 aspects of this concept were co
 This thesis is to show the effects of different techniques on clinical data. 
 This includes **Bi-RNN-based models** (*Bi-GRU*, *Bi-LSTM*), **contextual embeddings** (*BERT*, *FLAIR*),
 **domain-specific data the embeddings were pre-trained on** (*ClinicalBERT*, *HunFLAIR*), and **fine-tuning** ([Lin et al., 2018](https://aclanthology.org/2020.bionlp-1.7)).
+
+Experiments were conducted as follows:
+- **Bi-GRU**-models were used for *Polarity* and *Modality* Tasks
+- **Bi-LSTM**-model was used for *Temporal Relations* Task in terms of entities within sentences (sentence boundaries were observed)
+- A "universal model" with the technique of **fine-tuning** different pretrained **BERT**-models were for *Temporal Relations* task with data including cases out-of-sentences (in short relations of entities in the whole text if there are)
+
 Also, to observe the importance of entity markup (how the entities are distinguished when fed into pre-trained Language Model),
 based on research from [Lin et al., 2019](https://www.aclweb.org/anthology/W19-1908), *XML* and *non-XML markers* were under experiments.
 
