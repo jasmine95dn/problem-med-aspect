@@ -18,7 +18,7 @@ class ModelLoader(Loader):
     @classmethod
     def load_model(cls, path, device):
         """
-
+        Load model from Torch file
         :param path:
         :param device:
         :return:
@@ -35,7 +35,7 @@ class EmbeddingLoader(Loader):
     @staticmethod
     def load_embed(path):
         """
-
+        Load pre-trained embeddings from HDFD file
         :param path:
         :return:
         """
