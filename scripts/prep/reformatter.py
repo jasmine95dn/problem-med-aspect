@@ -23,7 +23,7 @@ class Reformat:
     @staticmethod
     def doc_list(srcfolder, name=r'\d+'):
         """
-
+        List all docs in dataset
         :param srcfolder:
         :param name:
         :return:
@@ -35,7 +35,7 @@ class Reformat:
     @staticmethod
     def load_raw_text(srcfile):
         """
-
+        Load raw text
         :param srcfile:
         :return:
         """
@@ -47,7 +47,7 @@ class Reformat:
 
     def extract_rawtext(self, docs, folder, pref):
         """
-
+        Extract raw texts in terms of doc_id
         :param docs:
         :param folder:
         :param pref:
@@ -60,7 +60,7 @@ class Reformat:
     @staticmethod
     def filter_out_value(df, column, upper=True, match=r'="(.+)"$'):
         """
-
+        Filter necessary values
         :param df:
         :param column:
         :param upper:
@@ -76,7 +76,7 @@ class Reformat:
     @staticmethod
     def split_col_right(col, deli=' ', maxsplit=2):
         """
-
+        Split columns on the right
         :param col:
         :param deli:
         :param maxsplit:
@@ -87,7 +87,7 @@ class Reformat:
     @staticmethod
     def split_col(col, deli=':'):
         """
-
+        Split columns
         :param col:
         :param deli:
         :return:
@@ -96,12 +96,12 @@ class Reformat:
 
     def find_context(self, sent_ind, start, end, doc_id, full=True):
         """
-
+        Extract left and right contexts from the entity (default: within sentence and in whole doc)
         :param sent_ind:
         :param start:
         :param end:
         :param doc_id:
-        :param full:
+        :param full: if not True, only extract contexts on both sides intrasentiantally
         :return:
         """
     
@@ -167,7 +167,11 @@ class Reformat2010(Reformat):
         super(Reformat2010, self).__init__(prep_config)
 
     def extract_concept(self, path_to_concepts):
+        """
         
+        :param path_to_concepts: 
+        :return: 
+        """
         # get all concepts
         concepts = pd.read_csv(path_to_concepts, sep='\|\|', names=["concept", "ctype"], engine='python')
         
@@ -180,7 +184,11 @@ class Reformat2010(Reformat):
         return problems
 
     def extract_ast(self, path_to_ast):
+        """
         
+        :param path_to_ast: 
+        :return: 
+        """
         # get all assertions
         problems = pd.read_csv(path_to_ast, sep='\|\|', names=["concept", "ctype", "atype"], engine='python')
         
@@ -201,6 +209,14 @@ class Reformat2010(Reformat):
         return problems
 
     def extract_table(self, path_to_concepts, path_to_ast, doc_id):
+        """
+        
+        :param path_to_concepts: 
+        :param path_to_ast: 
+        :param doc_id: 
+        :return: 
+        """
+
         print(f'extract document {doc_id}')
         
         # 1. PROBLEM tag
@@ -256,7 +272,7 @@ class Reformat2010(Reformat):
 
     def assign_context(self, df, full=False):
         """
-        assign context for table problem
+        Assign context for table problem
         :param df:
         :param full:
         :return:
@@ -272,7 +288,7 @@ class Reformat2010(Reformat):
     @staticmethod
     def extract_mod(df):
         """
-
+        Extract MODALITY 
         :param df:
         :return:
         """     
@@ -317,7 +333,7 @@ class Reformat2012(Reformat):
 
     def extract_tlink(self, path_to_tlinks):
         """
-        TLINK tag
+        Extract TLINK tag
         :param path_to_tlinks:
         :return:
         """
@@ -357,7 +373,7 @@ class Reformat2012(Reformat):
 
     def extract_event(self, path_to_events):
         """
-        EVENT tag
+        Extract EVENT tag
         :param path_to_events:
         :return:
         """
@@ -385,7 +401,7 @@ class Reformat2012(Reformat):
     @staticmethod
     def merge(events, problems, *tlinks):
         """
-        MERGING
+        Merge
         :param events:
         :param problems:
         :param tlinks:
@@ -535,7 +551,7 @@ class Reformat2012(Reformat):
 
     def assign_context(self, df, full=True):
         """
-        assign context for table problem, within and cross
+        Assign context for table problem, within and cross
         :param df:
         :param full:
         :return:
