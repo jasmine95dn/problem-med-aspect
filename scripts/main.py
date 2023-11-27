@@ -31,7 +31,7 @@ class Problem(object):
     def prep(self):
         parser = argparse.ArgumentParser(description='Run preprocessing')
         parser.add_argument('input', type=str, help='input file/directory')
-        parser.add_argument('-o', '--output', type=str, default='./', help='output folder')
+        parser.add_argument('-o', '--output', type=str, default='./', help='output folder (default: current directory)')
         parser.add_argument('-dt', '--dtype', type=str, default='train',
                             help='''data type (default: train data), choose train/test''')
         parser.add_argument('--compress', action='store_true', help='whether to compress output file')
